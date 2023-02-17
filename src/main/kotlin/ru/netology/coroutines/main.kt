@@ -5,10 +5,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.*
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
-import ru.netology.coroutines.dto.Author
-import ru.netology.coroutines.dto.Comment
-import ru.netology.coroutines.dto.Post
-import ru.netology.coroutines.dto.PostWithComments
+import ru.netology.coroutines.dto.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.EmptyCoroutineContext
@@ -139,9 +136,9 @@ fun main() {
                 val posts = getPosts(client)
                     .map { post ->
                         async {
-                            PostWithComments(post, getComments(client, post.id), async { getAuthor(client, post.authorId)}.await() )
+                            PostWithAC(post,  getAuthor(client, post.authorId), getComments(client, post.id).map { comment -> CommentWithAuthor(comment, getAuthor(
+                                client, comment.authorId) )  } )
                         }
-
                     }.awaitAll()
                 println(posts)
             } catch (e: Exception) {
